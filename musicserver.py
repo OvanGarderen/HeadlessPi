@@ -52,12 +52,12 @@ class MusicServer(Server):
 
     # play song
     def play(self):
-        self._client.pause(false)
+        self._client.pause(0)
         return "OK"
 
     # pause song
     def pause(self):
-        self._client.pause(true)
+        self._client.pause(1)
         return "OK"
 
     # pause song
@@ -88,7 +88,7 @@ class MusicServer(Server):
         
         # get a list of artists
         artists = self._client.list("albumartist")
-        
+
         # get more info and combine artists
         for artist in artists:
             ret.append({"name" : artist})
@@ -120,50 +120,42 @@ class MusicServer(Server):
 
     # handle a post request
     def post(self, command, vals, get = []):
-
-        try:
-            # establish a connection to mpd
-            with self.connection():
-                # handle commands
-                if command == 'add':
-                    return self.add(vals.get('target',None))
-                elif command == 'play':
-                    return self.play()
-                elif command == 'pause':
-                    return self.pause()
-                elif command == 'prev':
-                    return self.prev()
-                elif command == 'next':
-                    return self.next()
-                elif command == 'clear':
-                    return self.clear()
-        except:
-            # internal server error
-            abort(500)
+        
+        # establish a connection to mpd
+        with self.connection():
+            # handle commands
+            if command == 'add':
+                return self.add(vals.get('target',None))
+            elif command == 'play':
+                return self.play()
+            elif command == 'pause':
+                return self.pause()
+            elif command == 'prev':
+                return self.prev()
+            elif command == 'next':
+                return self.next()
+            elif command == 'clear':
+                return self.clear()
 
         abort(404)
 
     # handle a get request
     def get(self, command, get = []):
 
-        try:
-            # establish a connection to mpd
-            with self.connection():
-                print("Getting ", command)
-                # handle commands
-                if command == 'playlist':
-                    return jsonify(self.playlist())
-                elif command == 'list':
-                    return jsonify(self.list())
-                elif command == 'list_artist':
-                    return jsonify(self.list_artist(get.get("artist", "")))
-                elif command == 'list_album':
-                    return jsonify(self.list_album(get.get("artist", ""), get.get("album", "")))
-                elif command == 'status':
-                    return jsonify(self.status())
-        except:
-            # internal server error
-            abort(500)
+        # establish a connection to mpd
+        with self.connection():
+            print("Getting ", command)
+            # handle commands
+            if command == 'playlist':
+                return jsonify(self.playlist())
+            elif command == 'list':
+                return jsonify(self.list())
+            elif command == 'list_artist':
+                return jsonify(self.list_artist(get.get("artist", "")))
+            elif command == 'list_album':
+                return jsonify(self.list_album(get.get("artist", ""), get.get("album", "")))
+            elif command == 'status':
+                return jsonify(self.status())
 
         # command not found
         abort(404)

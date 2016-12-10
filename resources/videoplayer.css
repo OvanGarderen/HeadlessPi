@@ -7,8 +7,8 @@ video {
 
     margin-bottom: .2em;
 
-    border: 1px solid #c0c0c0;
-    background-color: #eee;
+    border: 1px solid #808080;
+    background-color: #334;
 }
 
 #status-container {
@@ -38,8 +38,8 @@ video {
     margin-left: .2em;
     padding: .4em;
 
-    border: 1px solid #c0c0c0;
-    background-color: #eee;
+    border: 1px solid #808080;
+    background-color: #334;
 
     flex: 1 1 60%;
 }

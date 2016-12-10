@@ -5,9 +5,16 @@ from pathlib import Path
 from utils import DirectoryCrawl, realpath
 from plugin import Server
 
-from backends.mpv import MPVBackend
-from backends.omxplayer import OMXPlayerBackend
+try:
+    from backends.mpv import MPVBackend
+except OSError as e:
+    print("Could not load MPV backend: " + str(e))
 
+try:
+    from backends.omxplayer import OMXPlayerBackend
+except OSError as e:
+    print("Could not load OMXPlayer backend: " + str(e))
+    
 class VideoServer(Server):
     def __init__(self, defaults, config):
         super().__init__(defaults, config)

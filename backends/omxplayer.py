@@ -41,6 +41,9 @@ class OMXPlayerBackend:
         if self._player == None:
             return
         
+        # convert to float
+        value = float (value)
+     
         # constrain value
         if value > 100:
             value = 100
@@ -51,7 +54,7 @@ class OMXPlayerBackend:
         duration = self._player.duration()
 
         # seek to position, in seconds
-        self._player.seek((value/100) * duration)
+        self._player.set_position((value/100) * duration)
 
     ### get values
     def position(self):
@@ -60,11 +63,13 @@ class OMXPlayerBackend:
             return 0        
 
         # check that we dont divide by zero
-        if self._player.duration():
+        if self._player.duration() == 0:
             return 0
-        
+
         # calculate position as percentage
-        return 100 * (self._player.position() / self._player.duration())
+        percentage = 100 * (float(self._player.position()) / self._player.duration())
+        print(percentage)       
+        return percentage		
 
 
     def paused(self):
