@@ -25,10 +25,13 @@ video {
     border: 1px solid grey;
 }
 
-.directory:hover,
-.directory.expanded {
-    margin-bottom: 0;
+.directory:hover {
     background-color: #999;
+}
+
+.directory.expanded {
+    background-color: #999;
+    margin-bottom: 0;
 }
 
 .directory.collapsed + .children {

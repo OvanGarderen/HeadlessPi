@@ -10,7 +10,6 @@ class MusicServer:
 
     # add song to the list
     def add(target):
-        print(target)
         if len(target) > 0:
             call(['mpc', 'add', target])
 

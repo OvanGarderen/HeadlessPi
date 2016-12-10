@@ -8,11 +8,19 @@ from videoserver import VideoServer
 app = Flask(__name__, static_folder = 'resources', template_folder = "resources")
 
 # module dictionary
-modules = {'musicplayer' : MusicServer(), 'videoplayer' : VideoServer()}
+modules = {
+    'musicplayer' : MusicServer(),
+    'films' : VideoServer('Films', '/root/film'),
+    'documentaries' : VideoServer('Documentaries', '/root/documentaries'),
+    'comedy' : VideoServer('Comedy', '/root/comedy'),    
+    'series' : VideoServer('Series', '/root/series'),
+    'cartoons' : VideoServer('Cartoons', '/root/cartoons'),
+    'anime' : VideoServer('Anime', '/root/anime')                
+}
 
 # construct menu
 menu = ""
-for module in modules.keys():
+for module in sorted(modules.keys()):
     mod = modules[module]
 
     # get vars from mod
@@ -21,8 +29,6 @@ for module in modules.keys():
 
     # add menu entry
     menu += Markup('<a href="/%s/"><i class="fa fa-%s"></i>%s</a>') % (module, module_icon, module_name)
-
-print(menu)
 
 # main interface
 @app.route("/")
@@ -57,4 +63,4 @@ def command_module(module, command):
 
 # run the server
 if __name__ == "__main__":
-    app.run(debug = True)
+    app.run(host = "0.0.0.0", port = 80, debug = True)

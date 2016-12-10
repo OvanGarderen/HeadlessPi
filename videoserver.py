@@ -16,22 +16,25 @@ class DirectoryCrawl:
         return {'path' : path.relative_to(self._path).as_posix(), 'name' : path.parts[-1], 'isdir' : path.is_dir(), 'children' : children}
         
     def results(self):
-        print(self._results)
         return self._results
 
 class VideoServer:
+    def __init__(self, name, root):
+        self._root = root
+        self._name = name
+
     def name(self):
-        return "Video Player"
+        return self._name
 
     def icon(self):
         return "play-circle-o"
 
     def videopath(self):
-        return "/home/okke/Visuals"
+        return self._root
 
     # add song to the list
     def play(self, target):
-        if call(['mpv', self.videopath() + '/' + target]) != 0:
+        if call(['omxplayer', self.videopath() + '/' + target]) != 0:
             abort(404)
 
     # get the local path for a video
