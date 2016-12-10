@@ -16,7 +16,7 @@ class VideoServer(Server):
         return self.option("player", "omxplayer")
 
     def player_options(self):
-        return self.option("player-options", "").split(' ')
+        return self.option("player-options", "").split()
 
     # add song to the list
     def play(self, target):

@@ -7,7 +7,7 @@ class Server:
 
     ### settings
     def option(self, opt, otherwise = None):
-        if otherwise:
+        if otherwise != None:
             return self._config.get(opt, self._defaults.get(opt, otherwise))
         else:
             return self._config.get(opt, self._defaults.get(opt))
