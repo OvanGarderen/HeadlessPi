@@ -1,0 +1,34 @@
+{% extends "skeleton.html" %}
+{% block title %}
+Music Player Daemon
+{% endblock %}
+{% block include %}
+<script type="text/javascript" type="text/css" src="{{url_for('static', filename='js/musicplayer.js')}}"></script>
+<link rel="stylesheet" href="{{url_for('static', filename='musicplayer.css')}}" />
+{% endblock %}
+{% block right_menu %}
+<div class="playlist box box-right box-top">
+  <h3>Playlist</h3>
+  <div class="scrollable">
+    <ul id="playlist" class="song-list">
+      Playlist empty
+    </ul>
+  </div>
+</div>
+{% endblock %}
+{% block content %}
+<h2>Music player Daemon</h2>
+
+<div class="box action-buttons">
+  <a id="play-button"><i class="fa fa-play"></i>Play</a>
+  <a id="clear-button"><i class="fa fa-list"></i>Clear</a>
+  <a id="prev-button"><i class="fa fa-fast-backward"></i>Prev</a>
+  <a id="next-button"><i class="fa fa-fast-forward"></i>Next</a>
+  <hr>
+  <div class="add-song">
+    <input id="additional-song" name="song"/>
+    <a id="add-button"><i class="fa fa-play"></i>Add song</a>
+  </div>
+</div>
+
+{% endblock %}

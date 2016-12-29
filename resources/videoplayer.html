@@ -1,0 +1,28 @@
+{% extends "skeleton.html" %}
+{% block title %}
+Music Player Daemon
+{% endblock %}
+{% block include %}
+<script type="text/javascript" type="text/css" src="{{url_for('static', filename='js/videoplayer.js')}}"></script>
+<link rel="stylesheet" href="{{url_for('static', filename='videoplayer.css')}}" />
+{% endblock %}
+{% block content %}
+<h2>Video Player</h2>
+
+<div class="box action-buttons">
+  <input id="video-target" name="song"/>
+  <a id="play-button"><i class="fa fa-play"></i>Play</a>
+  <a id="play-local-button"><i class="fa fa-play"></i>Play Local</a>
+</div>
+
+<div class="box status">
+  <span id="status-text">Select a file to play</span>
+</div>
+
+<div id="directory-container">
+</div>
+
+<div id="video-container">
+</div>
+
+{% endblock %}

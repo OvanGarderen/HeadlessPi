@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>HeadlessPi -- {% block title %}{% endblock %}</title>
+
+    <!-- fontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" />
+    <link rel="font" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/fonts/FontAwesome.otf" />
+
+    <!-- jQuery -->
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+
+    <!-- general styles and scripts -->
+    <link rel="stylesheet" href="{{url_for('static', filename='skeleton.css')}}" />
+    <link href="https://fonts.googleapis.com/css?family=Arima+Madurai" rel="stylesheet">
+    <script type="text/javascript">
+      var hide_menu = function (e) {
+      var menu = $("#right-menu")
+
+      if (menu.hasClass('hidden')) {
+          menu.removeClass('hidden')
+          $(e).empty().append('<i class="fa fa-arrow-right">').append('Hide side menu')
+      } else {
+          menu.addClass('hidden')
+          $(e).empty().append('<i class="fa fa-arrow-left">').append('Show side menu')
+      }
+      }
+    </script>
+    <!-- local scripts-->
+    {% block include %}{% endblock %}
+  <head>  
+  <body>
+    <section class="nav box">
+      <h4>Installed Modules</h4>
+      <ul>
+        {{ menu }}
+      </ul>
+    </section>
+
+    <section class="content">
+      {% block content %}{% endblock %} 
+    </section>
+
+    <section id="right-menu" class="right-menu">
+      <a onclick="hide_menu(this)"><i class="fa fa-arrow-right"></i>Hide side menu</a>
+      {% block right_menu %}{% endblock %}
+    </section>
+  </body>
+</html>

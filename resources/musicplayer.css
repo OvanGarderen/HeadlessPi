@@ -1,0 +1,42 @@
+/* song list */
+.song-list {
+    padding: 0;
+    list-style-type: none;
+    list-style-position: inside;
+}
+
+.song-list li {
+    padding: .6em;
+    margin-left: 1em;
+
+    border-left: 1px solid black;
+    border-right: 1px solid black;
+
+    background-color: #eee;
+}
+
+.song-list li.selected {
+    margin-left: 0;
+
+    padding-top: 1.2em;
+    padding-bottom: 1.2em;
+
+    border: 1px solid black;
+
+}
+
+.song-list.playing li.selected {
+    background-color: #6a6;
+}
+
+.song-list li:nth-child(even) {
+    background-color: #ddd;
+}
+
+.song-list li:first-child {
+    border-top: 1px solid black;
+}
+
+.song-list li:last-child {
+    border-bottom: 1px solid black;
+}

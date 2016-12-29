@@ -1,0 +1,104 @@
+/* element styles */
+* {
+    font-family: 'Arima Madurai', cursive;
+}
+
+body, h1, h2, h3, h4, h5, h6 {
+    margin: 0;
+    margin-bottom: 1rem;
+}
+
+ul {
+    diplay: inline-block;
+    margin: 0;
+}
+
+a {
+    padding-top: .2em;
+    padding-bottom: .2em;
+    padding-left: .5em;
+    padding-right: .5em;
+
+    vertical-align: text-bottom;
+}
+
+a:hover {
+    background-color: #aaa;
+}
+
+.content h2 {
+    color: #822;
+}
+
+/* general boxes */
+body {
+    display: flex;
+    flex-direction: row;
+}
+
+section.nav {
+    flex-grow: 0;
+    flex-shrink: 0;
+    flex-basis: 8%;
+    padding: 1.5em;
+
+    min-height: 30em;
+}
+
+section.nav ul {
+    padding-left: 0;
+}
+
+section.nav a {
+    display: block;
+}
+
+section.content {
+    padding-top: 1em;
+    margin-left: 2em;
+    margin-right: 2em;
+    flex-grow: 1;
+}
+
+section.right-menu {
+    flex-grow: 0;
+    flex-basis: 30%;
+}
+
+.box {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border: 1px solid grey;
+
+    background-color: #ddd;
+}
+
+.box-right {
+    padding-right: 0;
+    border-right: none;
+}
+
+.box-top {
+    padding-top: 0;
+    border-top: none;
+}
+
+.scrollable {
+    max-height: 50em;
+    overflow-y: auto;
+}
+
+/* links */
+i.fa {
+    display: inline-block;
+    margin-right: .3em;
+}
+
+/* side menu */
+.right-menu.hidden > :nth-child(n+2){
+    display: none;
+}
+
+.right-menu a {
+    float: right;
+}
