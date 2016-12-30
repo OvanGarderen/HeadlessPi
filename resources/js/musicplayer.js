@@ -1,5 +1,5 @@
 // start playing
-var media_play = function () {
+var music_play = function () {
     $.ajax({
         url : "./play",
         method : "POST"
@@ -7,7 +7,7 @@ var media_play = function () {
 }
 
 // start playing
-var media_pause = function () {
+var music_pause = function () {
     $.ajax({
         url : "./pause",
         method : "POST"
@@ -15,7 +15,7 @@ var media_pause = function () {
 }
 
 // start playing
-var media_clear = function () {
+var music_clear = function () {
     $.ajax({
         url : "./clear",
         method : "POST"
@@ -23,7 +23,7 @@ var media_clear = function () {
 }
 
 // play the next song
-var media_prev = function() {
+var music_prev = function() {
     $.ajax({
         url : "./prev",
         method : "POST"
@@ -31,22 +31,23 @@ var media_prev = function() {
 }
 
 // play the next song
-var media_next = function() {
+var music_next = function() {
     $.ajax({
         url : "./next",
         method : "POST"
     }).done(refresh);
 }
 
-// start playing
-var media_add = function () {
-    // get the data 
-    var data = {'target' : $("#additional-song").val()}
+var music_add_click = function () {
+    music_add($("#music-target").val())
+}
 
+// start playing
+var music_add = function (target) {
     $.ajax({
         url : "./add",
         method : "POST",
-        data: data
+        data: {target: target}
     }).done(refresh)
 }
 
@@ -100,6 +101,68 @@ var refresh = function () {
     refresh_playlist()
 }
 
+var dir_expand = function () {
+    $(this).toggleClass('collapsed').toggleClass('expanded')
+}
+
+var file_click = function () {
+    $this = $(this)
+
+    music_add($this.attr('data-path'))
+}
+
+var show_dir = function (data) {
+    var el = $('<div>')
+
+    if (data.isdir) {
+        var header = $('<div class="entry directory collapsed" data-path="' + data.path + '">').click(dir_expand).text(data.name)
+        
+        var children = $('<div class="children">')
+
+        data.children.forEach(function (item, index) {
+            children.append(show_dir(item))
+        })
+
+        return el.append(header).append(children)
+    } else {        
+        var header = $('<a class="entry file" data-path="' + data.path + '">').click(file_click).text(data.name)
+
+        return el.append(header)
+    }
+}
+
+// start playing
+var music_list = function () {
+    // get the data 
+    var data = {search : $("#music-target").val()}
+
+    var status = $('#status-text')
+    var container = $('#directory-container')
+
+    container.empty()
+
+    $.ajax({
+        url : "./list",
+        method : "GET",
+        data: data
+    }).fail(function() {
+
+        // update status
+        status.text("Could not list directory.")
+
+    }).done(function(data) {
+
+        // get directory listing
+        dirs = show_dir(data).addClass('directory-list')
+
+        // add dir to container
+        container.append(dirs)
+
+        // auto-expand first dir
+        dir_expand.bind(dirs.children('.directory'))()
+    })
+}
+
 // install callbacks
 $(document).ready( function () {
 
@@ -111,13 +174,13 @@ $(document).ready( function () {
         // check if we are allready playing
         if ($('#playlist').hasClass('playing')) {
             // pause
-            if (!quiet) media_pause()
+            if (!quiet) music_pause()
             
             // update icon
             icon.html('<i class="fa fa-play"></i>Play')
         } else {
             // play
-            if (!quiet) media_play()
+            if (!quiet) music_play()
 
             // update icon
             icon.html('<i class="fa fa-pause"></i>Pause')
@@ -126,16 +189,18 @@ $(document).ready( function () {
 
     // set button callbacks
     $('#play-button').click(function () { toggle_play(false) })
-    $('#clear-button').click(media_clear)
-    $('#add-button').click(media_add)
-    $('#prev-button').click(media_prev)
-    $('#next-button').click(media_next)
+    $('#clear-button').click(music_clear)
+    $('#add-button').click(music_add)
+    $('#prev-button').click(music_prev)
+    $('#next-button').click(music_next)
 
     toggle_play(true)
+
+    music_list();
 
     // load data async
     refresh()
 
     // refresh every once in a while
-    setInterval(refresh, 30 * 1000)
+    setInterval(refresh, 20 * 1000)
 })

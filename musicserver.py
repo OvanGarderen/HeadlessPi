@@ -1,81 +1,99 @@
 from flask import render_template, jsonify, abort
 from subprocess import call, check_output
 
-class MusicServer:
+from utils import DirectoryCrawl
+from plugin import Server
+
+class MusicServer(Server):
+    ### settings
     def name(self):
-        return "Music Player"
+        return self.option("mod-name", "Music Player")
 
     def icon(self):
-        return "music"
+        return self.option("mod-icon", "music")
 
     # add song to the list
-    def add(target):
-        if len(target) > 0:
+    def add(self, target):
+        if target:
             call(['mpc', 'add', target])
-
+            return "OK"
+        abort(404)
+        
     # clear playlist
-    def clear():
+    def clear(self):
         call(['mpc', 'clear'])
+        return "OK"
 
     # play song
-    def play():
+    def play(self):
         call(['mpc', 'play'])
+        return "OK"
 
     # pause song
-    def pause():
+    def pause(self):
         call(['mpc', 'pause'])
+        return "OK"
 
     # pause song
-    def prev():
+    def prev(self):
         call(['mpc', 'prev'])
+        return "OK"
 
     # pause song
-    def next():
+    def next(self):
         call(['mpc', 'next'])
+        return "OK"
 
     # get the current song
-    def current():
+    def current(self):
         return check_output(['mpc', 'current']).decode('utf-8')
 
     # get the play state
-    def playing():
+    def playing(self):
         lines = check_output(['mpc', 'status']).decode('utf-8').split('\n')
         if len(lines) > 2:
             return lines[1][lines[1].find('[') + 1: lines[1].find(']')]
         return 'stopped'
 
     # return playlist
-    def playlist():
+    def playlist(self):
         lines = check_output(['mpc', 'playlist']).decode('utf-8').split('\n')
         current = check_output(['mpc', 'current']).decode('utf-8')
 
         return [{'name' : x, 'iscurrent' : (current[:-1] == x)} for x in lines if len(x) != 0]
 
+    # list video directory
+    def list(self, search):
+        dir = DirectoryCrawl(self.path())
+        return dir.results()
+
     # handle a post request
-    def post(self, command, vals, get = []):        
+    def post(self, command, vals, get = []):
         # handle commands
         if command == 'add':
-            MusicServer.add(vals.get('target',''))
+            return self.add(vals.get('target',None))
         elif command == 'play':
-            MusicServer.play()
+            return self.play()
         elif command == 'pause':
-            MusicServer.pause()
+            return self.pause()
         elif command == 'prev':
-            MusicServer.prev()
+            return self.prev()
         elif command == 'next':
-            MusicServer.next()
+            return self.next()
         elif command == 'clear':
-            MusicServer.clear()
+            return self.clear()
 
-        return "OK"
+        abort(404)
 
     # handle a get request
     def get(self, command, get = []):
         # handle commands
         if command == 'playlist':
-            return jsonify(MusicServer.playlist())
+            return jsonify(self.playlist())
+        elif command == 'list':
+            return jsonify(self.list(get.get('search', '')))
         elif command == 'status':
-            return MusicServer.playing()
+            return self.playing()
 
         # command not found
         abort(404)

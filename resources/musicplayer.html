@@ -5,6 +5,7 @@ Music Player Daemon
 {% block include %}
 <script type="text/javascript" type="text/css" src="{{url_for('static', filename='js/musicplayer.js')}}"></script>
 <link rel="stylesheet" href="{{url_for('static', filename='musicplayer.css')}}" />
+<link rel="stylesheet" href="{{url_for('static', filename='directory.css')}}" />
 {% endblock %}
 {% block right_menu %}
 <div class="playlist box box-right box-top">
@@ -26,9 +27,12 @@ Music Player Daemon
   <a id="next-button"><i class="fa fa-fast-forward"></i>Next</a>
   <hr>
   <div class="add-song">
-    <input id="additional-song" name="song"/>
+    <input id="music-target" name="song"/>
     <a id="add-button"><i class="fa fa-play"></i>Add song</a>
   </div>
+</div>
+
+<div id="directory-container">
 </div>
 
 {% endblock %}

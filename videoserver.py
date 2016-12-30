@@ -1,54 +1,40 @@
 from flask import render_template, jsonify, abort
 from subprocess import call, check_output
-from pathlib import Path
 
-class DirectoryCrawl:
-    def __init__(self, base, search = ''):
-        self._path = Path(base)
-        self._results = self.read_dir(self._path)
-        self._results['name'] = '/'
+from utils import DirectoryCrawl, realpath
+from plugin import Server
 
-    def read_dir(self, path):
-        # recurse
-        children = [self.read_dir(x) for x in path.iterdir()] if path.is_dir() else None
-
-        # make dictionary
-        return {'path' : path.relative_to(self._path).as_posix(), 'name' : path.parts[-1], 'isdir' : path.is_dir(), 'children' : children}
-        
-    def results(self):
-        return self._results
-
-class VideoServer:
-    def __init__(self, name, root):
-        self._root = root
-        self._name = name
-
+class VideoServer(Server):
+    ### settings
     def name(self):
-        return self._name
+        return self.option("mod-name", "Video Player")
 
     def icon(self):
-        return "play-circle-o"
+        return self.option("mod-icon", "play-circle-o")
 
-    def videopath(self):
-        return self._root
+    def player(self):
+        return self.option("player", "omxplayer")
+
+    def player_options(self):
+        return self.option("player-options", "").split(' ')
 
     # add song to the list
     def play(self, target):
-        if call(['omxplayer', self.videopath() + '/' + target]) != 0:
+        if call([self.player()] + self.player_options() + [realpath(self.path()) + '/' + target]) != 0:
             abort(404)
 
     # get the local path for a video
     def play_local(self, target):
-        call(['ln', '-s', self.videopath() + '/' + target, 'resources/tmp/' + target])
+        call(['ln', '-s', realpath(self.path()) + '/' + target, 'resources/tmp/' + target])
 
         return '/resources/tmp/' + target
 
     # list video directory
     def list(self, search):
-        return DirectoryCrawl(self.videopath()).results()
+        return DirectoryCrawl(self.path()).results()
 
     # handle a post request
-    def post(self, command, vals, get = []):        
+    def post(self, command, vals, get = []):
         # handle commands
         if command == 'play':
             self.play(vals.get('target',''))

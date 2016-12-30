@@ -1,34 +1,46 @@
 from flask import Flask, request, render_template, redirect, url_for, abort, Markup
 from flask.json import jsonify
 
+from pathlib import Path
+
 from musicserver import MusicServer
 from videoserver import VideoServer
+from plugin import Server
 
 # initialise the server
 app = Flask(__name__, static_folder = 'resources', template_folder = "resources")
 
-# module dictionary
-modules = {
-    'musicplayer' : MusicServer(),
-    'films' : VideoServer('Films', '/root/film'),
-    'documentaries' : VideoServer('Documentaries', '/root/documentaries'),
-    'comedy' : VideoServer('Comedy', '/root/comedy'),    
-    'series' : VideoServer('Series', '/root/series'),
-    'cartoons' : VideoServer('Cartoons', '/root/cartoons'),
-    'anime' : VideoServer('Anime', '/root/anime')                
-}
+# try to open config
+from utils import Config
 
-# construct menu
+modconfig = Config('~/.config/headlesspi/modules.config')
+defconfig = Config('~/.config/headlesspi/defaults.config')
+
+modules = dict()
 menu = ""
-for module in sorted(modules.keys()):
-    mod = modules[module]
+for module in modconfig.sections():
+    # get the settings
+    settings = modconfig.get(module)
 
-    # get vars from mod
-    module_name = mod.name()
-    module_icon = mod.icon()
+    # discern the type
+    mtype = settings.get('mod-type', 'unknown')
 
-    # add menu entry
-    menu += Markup('<a href="/%s/"><i class="fa fa-%s"></i>%s</a>') % (module, module_icon, module_name)
+    if mtype in ['videoplayer', 'video']:
+        mod = VideoServer(defconfig.get('videoplayer'), settings)
+    elif mtype in ['mpd', 'musicplayer', 'music']:
+        mod = MusicServer(defconfig.get('musicplayer'), settings)
+    else:
+        mod = Server(defconfig.get('server'), settings)
+
+    # save the module
+    modules[module] = mod
+
+    # we allow the mod to set defaults
+    mname = mod.name()
+    micon = mod.icon()
+
+    # add a menu line
+    menu += Markup('<a href="/%s/"><i class="fa fa-%s"></i>%s</a>') % (module, micon, mname)    
 
 # main interface
 @app.route("/")
@@ -63,4 +75,9 @@ def command_module(module, command):
 
 # run the server
 if __name__ == "__main__":
-    app.run(host = "0.0.0.0", port = 80, debug = True)
+    # try to start the server on port 80
+    try:
+        app.run(host = "0.0.0.0", port = 80, debug=True)
+    # otherwise we run on port 5000
+    except:
+        app.run(host = "0.0.0.0", debug = True)
