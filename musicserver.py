@@ -1,10 +1,23 @@
+from contextlib import contextmanager
 from flask import render_template, jsonify, abort
 from subprocess import call, check_output
+
+from mpd import MPDClient
 
 from utils import DirectoryCrawl
 from plugin import Server
 
 class MusicServer(Server):
+    
+    ### initialise the server
+    def __init__(self, defaults, config):
+        super().__init__(defaults, config)
+        
+        # connect to mpd server
+        self._client = MPDClient()
+        self._client.timeout = 10
+        self._client.idletimeout = None
+
     ### settings
     def name(self):
         return self.option("mod-name", "Music Player")
@@ -12,88 +25,145 @@ class MusicServer(Server):
     def icon(self):
         return self.option("mod-icon", "music")
 
+    ### connection
+    @contextmanager
+    def connection(self):
+        try:
+            self._client.connect("localhost", int(self.option("mpd-port", 6600)))
+            yield
+        finally:
+            self._client.close()
+            self._client.disconnect()
+
+    ### server commands
+
     # add song to the list
     def add(self, target):
         if target:
-            call(['mpc', 'add', target])
+            print(target)
+            self._client.add(target)
             return "OK"
         abort(404)
         
     # clear playlist
     def clear(self):
-        call(['mpc', 'clear'])
+        self._client.clear()
         return "OK"
 
     # play song
     def play(self):
-        call(['mpc', 'play'])
+        self._client.pause(false)
         return "OK"
 
     # pause song
     def pause(self):
-        call(['mpc', 'pause'])
+        self._client.pause(true)
         return "OK"
 
     # pause song
     def prev(self):
-        call(['mpc', 'prev'])
+        self._client.previous()
         return "OK"
 
     # pause song
     def next(self):
-        call(['mpc', 'next'])
+        self._client.next()
         return "OK"
 
     # get the current song
     def current(self):
-        return check_output(['mpc', 'current']).decode('utf-8')
+        return self._client.currentsong()
 
     # get the play state
-    def playing(self):
-        lines = check_output(['mpc', 'status']).decode('utf-8').split('\n')
-        if len(lines) > 2:
-            return lines[1][lines[1].find('[') + 1: lines[1].find(']')]
-        return 'stopped'
+    def status(self):
+        return self._client.status()
 
     # return playlist
     def playlist(self):
-        lines = check_output(['mpc', 'playlist']).decode('utf-8').split('\n')
-        current = check_output(['mpc', 'current']).decode('utf-8')
-
-        return [{'name' : x, 'iscurrent' : (current[:-1] == x)} for x in lines if len(x) != 0]
+        return self._client.playlistid()
 
     # list video directory
-    def list(self, search):
-        dir = DirectoryCrawl(self.path())
-        return dir.results()
+    def list(self):
+        ret = []
+        
+        # get a list of artists
+        artists = self._client.list("albumartist")
+        
+        # get more info and combine artists
+        for artist in artists:
+            ret.append({"name" : artist})
+        
+        return ret
+
+    def list_artist(self, artist):
+        return self._client.list("album", "artist", artist)
+
+    def list_album(self, artist, album):
+        ret = []
+        
+        # get a list of song titles
+        titles = self._client.list("title", "artist", artist, "album", album)
+        
+        # get more info
+        for title in titles:
+            if len(title) == 0:
+                continue
+
+            file = self._client.list("file", "artist", artist, "album", album, "title", title)
+            track = self._client.list("track", "artist", artist, "album", album, "title", title)
+            ret.append({"file" : file, "track" : track, "name" : title})
+            
+        # sort based on track number
+        ret = sorted(ret, key = lambda x: x["track"])
+
+        return ret
 
     # handle a post request
     def post(self, command, vals, get = []):
-        # handle commands
-        if command == 'add':
-            return self.add(vals.get('target',None))
-        elif command == 'play':
-            return self.play()
-        elif command == 'pause':
-            return self.pause()
-        elif command == 'prev':
-            return self.prev()
-        elif command == 'next':
-            return self.next()
-        elif command == 'clear':
-            return self.clear()
+
+        try:
+            # establish a connection to mpd
+            with self.connection():
+                # handle commands
+                if command == 'add':
+                    return self.add(vals.get('target',None))
+                elif command == 'play':
+                    return self.play()
+                elif command == 'pause':
+                    return self.pause()
+                elif command == 'prev':
+                    return self.prev()
+                elif command == 'next':
+                    return self.next()
+                elif command == 'clear':
+                    return self.clear()
+        except:
+            # internal server error
+            abort(500)
 
         abort(404)
 
     # handle a get request
     def get(self, command, get = []):
-        # handle commands
-        if command == 'playlist':
-            return jsonify(self.playlist())
-        elif command == 'list':
-            return jsonify(self.list(get.get('search', '')))
-        elif command == 'status':
-            return self.playing()
+
+        try:
+            # establish a connection to mpd
+            with self.connection():
+                print("Getting ", command)
+                # handle commands
+                if command == 'playlist':
+                    return jsonify(self.playlist())
+                elif command == 'list':
+                    return jsonify(self.list())
+                elif command == 'list_artist':
+                    return jsonify(self.list_artist(get.get("artist", "")))
+                elif command == 'list_album':
+                    return jsonify(self.list_album(get.get("artist", ""), get.get("album", "")))
+                elif command == 'status':
+                    return jsonify(self.status())
+        except:
+            # internal server error
+            abort(500)
 
         # command not found
         abort(404)

@@ -1,10 +1,26 @@
 from flask import render_template, jsonify, abort
-from subprocess import call, check_output
+from subprocess import call, check_output, Popen, PIPE
 
+from pathlib import Path
 from utils import DirectoryCrawl, realpath
 from plugin import Server
 
+from backends.mpv import MPVBackend
+from backends.omxplayer import OMXPlayerBackend
+
 class VideoServer(Server):
+    def __init__(self, defaults, config):
+        super().__init__(defaults, config)
+
+        if self.player() == "mpv":
+            self._backend = MPVBackend(config)
+        elif self.player() == "omxplayer":
+            self._backend = OMXPlayerBackend(config)
+        else:
+            raise "Player backend " + self.player() + " not implemented";
+
+        self._current = ""
+    
     ### settings
     def name(self):
         return self.option("mod-name", "Video Player")
@@ -18,10 +34,30 @@ class VideoServer(Server):
     def player_options(self):
         return self.option("player-options", "").split(' ')
 
+    def pause_command(self):
+        return self.option("player-pause-command", "p")
+
     # add song to the list
     def play(self, target):
-        if call([self.player()] + self.player_options() + [realpath(self.path()) + '/' + target]) != 0:
-            abort(404)
+        # get path to resource
+        path = realpath(self.path()) + "/" + target
+        print(path)
+        self._backend.start(path)
+
+    def pause(self):
+        self._backend.pause()
+
+    def stop(self):
+        self._backend.reset()
+
+    def seek(self, value):
+        self._backend.seek(value)
+
+    def state(self):
+        return {
+            'position' : self._backend.position(),
+            'paused' : self._backend.paused()
+        }
 
     # get the local path for a video
     def play_local(self, target):
@@ -33,11 +69,26 @@ class VideoServer(Server):
     def list(self, search):
         return DirectoryCrawl(self.path()).results()
 
+    # get metadata on a video
+    def metadata(self, target):
+        path = Path(target).expanduser()
+        return {
+            'description' : path.parts[-1],
+            'thumbnail' : '/resources/images/thumb-placeholder.gif'
+        }
+
     # handle a post request
     def post(self, command, vals, get = []):
         # handle commands
         if command == 'play':
+            print(vals)
             self.play(vals.get('target',''))
+        elif command == 'pause':
+            self.pause()
+        elif command == 'stop':
+            self.stop()
+        elif command == 'seek':
+            self.seek(vals.get('value', 0))
 
         return "OK"
 
@@ -47,6 +98,10 @@ class VideoServer(Server):
             return jsonify({'src' : self.play_local(get.get('target')), 'type' : 'video/mp4'})
         elif command == 'list':
             return jsonify(self.list(get.get('search')));
+        elif command == 'metadata':
+            return jsonify(self.metadata(get.get('target')))
+        elif command == 'state':
+            return jsonify(self.state())
 
         # command not found
         abort(404)

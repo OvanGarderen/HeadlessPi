@@ -6,15 +6,20 @@ def realpath(path):
 # class that traverses a directory and returns the files as json
 # @todo make interactive (instead of slow)
 class DirectoryCrawl:
-    def __init__(self, base, search = ''):
+    def __init__(self, base, search = '', depth = -1):
         self._path = Path(base).expanduser()
         print(self._path);
         self._results = self.read_dir(self._path)
         self._results['name'] = '/'
 
-    def read_dir(self, path):
+    def read_dir(self, path, depth = -1):
         # recurse
-        children = sorted([self.read_dir(x) for x in path.iterdir()], key=lambda x: x['name']) if path.is_dir() else None
+        if not path.is_dir() or depth == 0:
+            children = None
+        elif depth == -1:
+            children = sorted([self.read_dir(x, depth = -1) for x in path.iterdir()], key=lambda x: x['name'])
+        else:
+            children = sorted([self.read_dir(x, depth = depth - 1) for x in path.iterdir()], key=lambda x: x['name'])
 
         # make dictionary
         return {'path' : path.relative_to(self._path).as_posix(), 'name' : path.parts[-1], 'isdir' : path.is_dir(), 'children' : children}

@@ -10,20 +10,34 @@ Music Player Daemon
 {% block content %}
 <h2>Video Player</h2>
 
-<div class="box action-buttons">
-  <input id="video-target" name="song"/>
-  <a id="play-button"><i class="fa fa-play"></i>Play</a>
-  <a id="play-local-button"><i class="fa fa-play"></i>Play Local</a>
-</div>
+<div class="box">
+  <input id="video-target" name="song" type="hidden"/>
 
-<div class="box status">
-  <span id="status-text">Select a file to play</span>
-</div>
+  <div id="video-container"></div>    
+
+  <div id="status-container">
+    <span id="video-thumbnail"></span>
+    <span id="video-description">Select a file to play</span>
+  </div>
+
+  <div class="subbox action-buttons">
+    <a id="play-button"><i class="fa fa-play"></i>Play</a>
+    <a id="play-local-button"><i class="fa fa-play"></i>Play Local</a>
+
+  </div>
+  
+  <div id="video-controls" class="subbox">
+    <a id="pause-button">
+      <i class="fa fa-pause"></i>Pause
+    </a>
+    <a id="stop-button">
+      <i class="fa fa-stop"></i>Stop
+    </a>
+    <input id="track-slider" type="range" value="0" min="0" max="100">
+  </div>
+<div>
 
 <div id="directory-container">
-</div>
-
-<div id="video-container">
 </div>
 
 {% endblock %}

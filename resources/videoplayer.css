@@ -2,3 +2,50 @@ video {
     border: 1px solid black;
 }
 
+.subbox {
+    padding: .2em;
+
+    margin-bottom: .2em;
+
+    border: 1px solid #c0c0c0;
+    background-color: #eee;
+}
+
+#status-container {
+    display: flex;
+    flex-direction: row;
+    margin-bottom: .2em;
+}
+
+#video-thumbnail {
+    width: 192px;
+    height: 108px;
+
+    display: inline-block;
+
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+
+    flex: 0 0 192px;
+}
+
+#video-description {
+    display: inline-block;
+    vertical-align: top;
+
+    margin-left: .2em;
+    padding: .4em;
+
+    border: 1px solid #c0c0c0;
+    background-color: #eee;
+
+    flex: 1 1 60%;
+}
+
+#track-slider {
+    vertical-align: middle;
+
+    width: 30em;
+}

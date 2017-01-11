@@ -51,6 +51,8 @@ var music_add = function (target) {
     }).done(refresh)
 }
 
+var current_id = 0
+
 // refresh the playlist
 var refresh_playlist = function() {
     $.ajax({
@@ -69,11 +71,14 @@ var refresh_playlist = function() {
         else 
             data.forEach(function (song, index) {
                 // make element
-                var li = $('<li>').append(song.name)
+                var li = $('<li>').append(song.artist + " - " + song.title)
                 
                 // mark the current song
-                if (song.iscurrent) li.addClass('selected')
+                if (song.id == current_id) li.addClass('selected')
                 
+                // set the id of the song
+                li.prop("data-id", song.id)
+
                 // add a line to the playlist
                 playlist.append(li)
             })
@@ -88,7 +93,7 @@ var refresh_status = function() {
     }).done(function(data){   
         var playlist = $('#playlist');
 
-        if (data == "playing")
+        if (data.play == "play")
             playlist.addClass('playing')
         else
             playlist.removeClass('playing')
@@ -101,34 +106,94 @@ var refresh = function () {
     refresh_playlist()
 }
 
-var dir_expand = function () {
-    $(this).toggleClass('collapsed').toggleClass('expanded')
-}
-
 var file_click = function () {
     $this = $(this)
-
+    console.log($this)
     music_add($this.attr('data-path'))
 }
 
-var show_dir = function (data) {
-    var el = $('<div>')
+var expand_album = function (event) {
+    
+    // toggle expansion
+    $this = $(this).toggleClass("collapsed").toggleClass("expanded")
 
-    if (data.isdir) {
-        var header = $('<div class="entry directory collapsed" data-path="' + data.path + '">').click(dir_expand).text(data.name)
-        
-        var children = $('<div class="children">')
+    // find children container
+    $container = $(this).siblings(".children")
+    artist = $container.attr("data-artist")
+    album = $container.attr("data-album")
 
-        data.children.forEach(function (item, index) {
-            children.append(show_dir(item))
+    if ($container.hasClass("loaded"))
+        return
+
+    $.ajax({
+        url : "./list_album",
+        method : "GET",
+        data : {"artist" : artist, "album" : album}
+    }).fail(function (error) {
+        $container.text("Could not load song list for album " + album)
+    }).done(function (data) {
+
+        // the container has now been loaded
+        $container.addClass("loaded")
+
+        data.forEach(function (data, index) {
+            // artist description
+            $song = $('<div class="entry file song">')
+                .attr("data-path", data.file)
+                .text(data.track + " - " + data.name)
+                .click(file_click)
+            
+            // song
+            $container.append($song)
         })
+    })
+}
 
-        return el.append(header).append(children)
-    } else {        
-        var header = $('<a class="entry file" data-path="' + data.path + '">').click(file_click).text(data.name)
+var expand_artist = function (event) {
+    
+    // toggle expansion
+    $this = $(this).toggleClass("collapsed").toggleClass("expanded")
 
-        return el.append(header)
-    }
+    // find children container
+    $container = $(this).siblings(".children")
+    artist = $container.attr("data-artist")
+
+    if ($container.hasClass("loaded"))
+        return
+
+    $.ajax({
+        url : "./list_artist",
+        method : "GET",
+        data : {"artist" : artist}
+    }).fail(function (error) {
+        $container.text("Could not load album list")
+    }).done(function (data) {
+        // the container has now been loaded
+        $container.addClass("loaded")
+
+        data.forEach(function (album, index) {
+            if (album.length == 0)
+                return
+
+            // artist container
+            $album = $("<div>")
+
+            // artist description
+            $description = $('<div class="entry directory collapsed album">')
+                .attr("data-album", album)
+                .text(album)
+                .click(expand_album)
+                .appendTo($album)
+
+            // children (albums)
+            $children = $('<div class="children album">')
+                .attr("data-artist", artist)
+                .attr("data-album", album)
+                .appendTo($album)
+            
+            $container.append($album)
+        })
+    })
 }
 
 // start playing
@@ -136,30 +201,37 @@ var music_list = function () {
     // get the data 
     var data = {search : $("#music-target").val()}
 
-    var status = $('#status-text')
     var container = $('#directory-container')
-
-    container.empty()
 
     $.ajax({
         url : "./list",
         method : "GET",
         data: data
-    }).fail(function() {
-
-        // update status
-        status.text("Could not list directory.")
-
     }).done(function(data) {
+        // empty the container
+        container.empty()
 
-        // get directory listing
-        dirs = show_dir(data).addClass('directory-list')
+        data.forEach(function (data, index) {
+            if (data.name.length == 0)
+                return
 
-        // add dir to container
-        container.append(dirs)
+            // artist container
+            $artist = $("<div>")
 
-        // auto-expand first dir
-        dir_expand.bind(dirs.children('.directory'))()
+            // artist description
+            $description = $('<div class="entry directory collapsed artist">')
+                .attr("data-artist", data.name)
+                .text(data.name)
+                .click(expand_artist)
+                .appendTo($artist)
+            
+            // children (albums)
+            $children = $('<div class="children artist">')
+                .attr("data-artist", data.name)
+                .appendTo($artist)
+
+            container.append($artist)
+        })
     })
 }
 
