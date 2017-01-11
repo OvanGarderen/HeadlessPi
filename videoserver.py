@@ -32,7 +32,7 @@ class VideoServer(Server):
         return self.option("player", "omxplayer")
 
     def player_options(self):
-        return self.option("player-options", "").split(' ')
+        return self.option("player-options", "").split()
 
     def pause_command(self):
         return self.option("player-pause-command", "p")
