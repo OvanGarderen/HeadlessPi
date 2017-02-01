@@ -75,9 +75,15 @@ def command_module(module, command):
 
 # run the server
 if __name__ == "__main__":
+    from sys import argv
+
+    # should we run as a debug server?
+    debug = "--debug" in argv
+
     # try to start the server on port 80
     try:
-        app.run(host = "0.0.0.0", port = 80, debug=True)
+        app.run(host = "0.0.0.0", port = 80, debug = debug)
+
     # otherwise we run on port 5000
     except:
-        app.run(host = "0.0.0.0", debug = True)
+        app.run(host = "0.0.0.0", debug = debug)
