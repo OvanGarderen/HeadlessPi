@@ -13,6 +13,9 @@ cec.so: $(BUILD_DIR)/cec$(ABI_VER)
 $(BUILD_DIR)/cec$(ABI_VER): cec.cpp setup.py device.h device.cpp
 	python setup.py build
 
+install: all
+	python setup.py install
+
 test: all
 	./test.py
 .PHONY: test

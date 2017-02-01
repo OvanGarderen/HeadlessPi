@@ -1,40 +1,27 @@
 #!/usr/bin/env python
 # Callback test; just to see if callbacks are working.
 
-from __future__ import print_function
 from time import sleep
 import cec
 
 print("Loaded CEC from", cec.__file__)
 
-def cb(event, *args):
-    print("Got event", event, "with data", args)
+class OBJ:
+    def __init__(self):
+        cec.add_callback(self.cb, cec.EVENT_ALL & ~cec.EVENT_LOG)
+        cec.init()
 
-# arguments: iils
-def log_cb(event, level, time, message):
-    print("CEC Log message:", message)
+    def cb(*args):
+        print("Got args ")
+        for arg in args:
+            print(arg)
+        print("\n\n\n")
 
-cec.add_callback(cb, cec.EVENT_ALL & ~cec.EVENT_LOG)
-cec.add_callback(log_cb, cec.EVENT_LOG)
-print("Callback added")
-sleep(2)
+        # arguments: iils
+    def log_cb(self, event, level, time, message):
+        print("CEC Log message:", message)
 
-if cec.HAVE_CEC_ADAPTER_DESCRIPTOR:
-    print("CEC has cec_adapter_descriptor");
-else:
-    print("CEC does not have cec_adapter_descriptor");
+#cec.add_callback(log_cb, cec.EVENT_LOG)
+object = OBJ()
+sleep(1000000)
 
-print("Initializing CEC library")
-cec.init()
-
-print("Creating Device object for TV")
-tv = cec.Device(0)
-print("Turning on TV")
-tv.power_on()
-
-print("Volume Up")
-cec.volume_up()
-print("Volume Down")
-cec.volume_down()
-
-print("SUCCESS!")

@@ -6,6 +6,10 @@ class MPVBackend:
 
         self._player = None
 
+    # remote control (not implemented)
+    def remote(self, key):
+        pass
+
     ### commands
     def reset(self):
         # if we don't have a player there is nothing to do

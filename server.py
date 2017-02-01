@@ -7,6 +7,8 @@ from musicserver import MusicServer
 from videoserver import VideoServer
 from plugin import Server
 
+import cec
+
 # initialise the server
 app = Flask(__name__, static_folder = 'resources', template_folder = "resources")
 
@@ -42,6 +44,9 @@ for module in modconfig.sections():
     # add a menu line
     menu += Markup('<a href="/%s/"><i class="fa fa-%s"></i>%s</a>') % (module, micon, mname)    
 
+# one module at a time can be "active"
+active_module = None
+
 # main interface
 @app.route("/")
 def interface():
@@ -69,13 +74,31 @@ def command_module(module, command):
     
     # send command
     if request.method == 'POST':
+        # something has changed in the module, set it to active
+        global active_module
+        active_module = mod
+
         return mod.post(command, request.form, get = request.args)
     else:
         return mod.get(command, get = request.args)
 
+# handle commands sent through the remote
+def remote(event, key, time):
+    # only send upon release
+    if time < 0.1:
+        return
+        
+    if active_module != None:
+        active_module.remote(key, time)
+
+import cec
+
 # run the server
 if __name__ == "__main__":
     from sys import argv
+
+    cec.add_callback(remote, cec.EVENT_KEYPRESS)
+    cec.init()
 
     # should we run as a debug server?
     debug = "--debug" in argv

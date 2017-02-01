@@ -5,6 +5,8 @@ from pathlib import Path
 from utils import DirectoryCrawl, realpath
 from plugin import Server
 
+import cec
+
 try:
     from backends.mpv import MPVBackend
 except Exception as e:
@@ -27,7 +29,7 @@ class VideoServer(Server):
             raise "Player backend " + self.player() + " not implemented";
 
         self._current = ""
-    
+            
     ### settings
     def name(self):
         return self.option("mod-name", "Video Player")
@@ -117,3 +119,7 @@ class VideoServer(Server):
     def render(self, get = [], template_args = {}):
         # render templater
         return render_template("videoplayer.html", **template_args)
+        
+    # handle remote control
+    def remote(self, key, time):
+        self._backend.remote(key, time)

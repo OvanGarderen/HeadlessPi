@@ -360,16 +360,16 @@ static PyObject * trigger_event(long int event, PyObject * args) {
          ++itr ) {
       //debug("Checking callback %d with events %ld\n", i, itr->event);
       if( itr->event & event ) {
-         //debug("Calling callback %d\n", i);
+         debug("Calling callback %d\n", i);
          // see also: PyObject_CallFunction(...) which can take C args
          PyObject * temp = PyObject_CallObject(itr->cb, args);
+                  
          if( temp ) {
             debug("Callback succeeded\n");
             Py_DECREF(temp);
          } else {
             debug("Callback failed\n");
-            Py_DECREF(Py_None);
-            return NULL;
+            break;
          }
       }
       i++;
@@ -550,7 +550,7 @@ libcec_configuration * CEC_config;
 ICECCallbacks * CEC_callbacks; 
 
 void log_cb(void * self, const cec_log_message *message ) {
-   debug("got log callback\n");
+   //debug("got log callback\n");
    PyGILState_STATE gstate;
    gstate = PyGILState_Ensure();
    int level = message->level;
@@ -571,6 +571,7 @@ void keypress_cb(void * self, const cec_keypress *key) {
    PyObject * args = Py_BuildValue("(iBI)", EVENT_KEYPRESS,
          key->keycode,
          key->duration);
+   debug("Got keycode %i, %i", key->keycode, key->duration);
    trigger_event(EVENT_KEYPRESS, args);
    Py_DECREF(args);
    PyGILState_Release(gstate);
@@ -777,7 +778,104 @@ PyMODINIT_FUNC initcec(void) {
    PyModule_AddIntMacro(m, EVENT_ACTIVATED);
    PyModule_AddIntMacro(m, EVENT_ALL);
 
-   // constants for alert types
+#define addConstant(name) PyModule_AddIntConstant(m, #name, name)
+
+   // constants for key presses
+   addConstant(CEC_USER_CONTROL_CODE_SELECT);
+   addConstant(CEC_USER_CONTROL_CODE_UP);
+   addConstant(CEC_USER_CONTROL_CODE_DOWN);
+   addConstant(CEC_USER_CONTROL_CODE_LEFT);
+   addConstant(CEC_USER_CONTROL_CODE_RIGHT);
+   addConstant(CEC_USER_CONTROL_CODE_RIGHT_UP);
+   addConstant(CEC_USER_CONTROL_CODE_RIGHT_DOWN);
+   addConstant(CEC_USER_CONTROL_CODE_LEFT_UP);
+   addConstant(CEC_USER_CONTROL_CODE_LEFT_DOWN);
+   addConstant(CEC_USER_CONTROL_CODE_ROOT_MENU);
+   addConstant(CEC_USER_CONTROL_CODE_SETUP_MENU);
+   addConstant(CEC_USER_CONTROL_CODE_CONTENTS_MENU);
+   addConstant(CEC_USER_CONTROL_CODE_FAVORITE_MENU);
+   addConstant(CEC_USER_CONTROL_CODE_EXIT);
+   addConstant(CEC_USER_CONTROL_CODE_TOP_MENU);
+   addConstant(CEC_USER_CONTROL_CODE_DVD_MENU);
+   addConstant(CEC_USER_CONTROL_CODE_NUMBER_ENTRY_MODE);
+   addConstant(CEC_USER_CONTROL_CODE_NUMBER11);
+   addConstant(CEC_USER_CONTROL_CODE_NUMBER12);
+   addConstant(CEC_USER_CONTROL_CODE_NUMBER0);
+   addConstant(CEC_USER_CONTROL_CODE_NUMBER1);
+   addConstant(CEC_USER_CONTROL_CODE_NUMBER2);
+   addConstant(CEC_USER_CONTROL_CODE_NUMBER3);
+   addConstant(CEC_USER_CONTROL_CODE_NUMBER4);
+   addConstant(CEC_USER_CONTROL_CODE_NUMBER5);
+   addConstant(CEC_USER_CONTROL_CODE_NUMBER6);
+   addConstant(CEC_USER_CONTROL_CODE_NUMBER7);
+   addConstant(CEC_USER_CONTROL_CODE_NUMBER8);
+   addConstant(CEC_USER_CONTROL_CODE_NUMBER9);
+   addConstant(CEC_USER_CONTROL_CODE_DOT);
+   addConstant(CEC_USER_CONTROL_CODE_ENTER);
+   addConstant(CEC_USER_CONTROL_CODE_CLEAR);
+   addConstant(CEC_USER_CONTROL_CODE_NEXT_FAVORITE);
+   addConstant(CEC_USER_CONTROL_CODE_CHANNEL_UP);
+   addConstant(CEC_USER_CONTROL_CODE_CHANNEL_DOWN);
+   addConstant(CEC_USER_CONTROL_CODE_PREVIOUS_CHANNEL);
+   addConstant(CEC_USER_CONTROL_CODE_SOUND_SELECT);
+   addConstant(CEC_USER_CONTROL_CODE_INPUT_SELECT);
+   addConstant(CEC_USER_CONTROL_CODE_DISPLAY_INFORMATION);
+   addConstant(CEC_USER_CONTROL_CODE_HELP);
+   addConstant(CEC_USER_CONTROL_CODE_PAGE_UP);
+   addConstant(CEC_USER_CONTROL_CODE_PAGE_DOWN);
+   
+   addConstant(CEC_USER_CONTROL_CODE_POWER);
+   addConstant(CEC_USER_CONTROL_CODE_VOLUME_UP);
+   addConstant(CEC_USER_CONTROL_CODE_VOLUME_DOWN);
+   addConstant(CEC_USER_CONTROL_CODE_MUTE);
+   addConstant(CEC_USER_CONTROL_CODE_PLAY);
+   addConstant(CEC_USER_CONTROL_CODE_STOP);
+   addConstant(CEC_USER_CONTROL_CODE_PAUSE);
+   addConstant(CEC_USER_CONTROL_CODE_RECORD);
+   addConstant(CEC_USER_CONTROL_CODE_REWIND);
+   addConstant(CEC_USER_CONTROL_CODE_FAST_FORWARD);
+   addConstant(CEC_USER_CONTROL_CODE_EJECT);
+   addConstant(CEC_USER_CONTROL_CODE_FORWARD);
+   addConstant(CEC_USER_CONTROL_CODE_BACKWARD);
+   addConstant(CEC_USER_CONTROL_CODE_STOP_RECORD);
+   addConstant(CEC_USER_CONTROL_CODE_PAUSE_RECORD);
+    
+   addConstant(CEC_USER_CONTROL_CODE_ANGLE);
+   addConstant(CEC_USER_CONTROL_CODE_SUB_PICTURE);
+   addConstant(CEC_USER_CONTROL_CODE_VIDEO_ON_DEMAND);
+   addConstant(CEC_USER_CONTROL_CODE_ELECTRONIC_PROGRAM_GUIDE);
+   addConstant(CEC_USER_CONTROL_CODE_TIMER_PROGRAMMING);
+   addConstant(CEC_USER_CONTROL_CODE_INITIAL_CONFIGURATION);
+   addConstant(CEC_USER_CONTROL_CODE_SELECT_BROADCAST_TYPE);
+   addConstant(CEC_USER_CONTROL_CODE_SELECT_SOUND_PRESENTATION);
+
+   addConstant(CEC_USER_CONTROL_CODE_PLAY_FUNCTION);
+   addConstant(CEC_USER_CONTROL_CODE_PAUSE_PLAY_FUNCTION);
+   addConstant(CEC_USER_CONTROL_CODE_RECORD_FUNCTION);
+   addConstant(CEC_USER_CONTROL_CODE_PAUSE_RECORD_FUNCTION);
+   addConstant(CEC_USER_CONTROL_CODE_STOP_FUNCTION);
+   addConstant(CEC_USER_CONTROL_CODE_MUTE_FUNCTION);
+   addConstant(CEC_USER_CONTROL_CODE_RESTORE_VOLUME_FUNCTION);
+   addConstant(CEC_USER_CONTROL_CODE_TUNE_FUNCTION);
+   addConstant(CEC_USER_CONTROL_CODE_SELECT_MEDIA_FUNCTION);
+   addConstant(CEC_USER_CONTROL_CODE_SELECT_AV_INPUT_FUNCTION);
+   addConstant(CEC_USER_CONTROL_CODE_SELECT_AUDIO_INPUT_FUNCTION);
+   addConstant(CEC_USER_CONTROL_CODE_POWER_TOGGLE_FUNCTION);
+   addConstant(CEC_USER_CONTROL_CODE_POWER_OFF_FUNCTION);
+   addConstant(CEC_USER_CONTROL_CODE_POWER_ON_FUNCTION);
+    
+   addConstant(CEC_USER_CONTROL_CODE_F1_BLUE);
+   addConstant(CEC_USER_CONTROL_CODE_F2_RED);
+   addConstant(CEC_USER_CONTROL_CODE_F3_GREEN);
+   addConstant(CEC_USER_CONTROL_CODE_F4_YELLOW);
+   addConstant(CEC_USER_CONTROL_CODE_F5);
+   addConstant(CEC_USER_CONTROL_CODE_DATA);
+ 
+   addConstant(CEC_USER_CONTROL_CODE_AN_RETURN);
+   addConstant(CEC_USER_CONTROL_CODE_AN_CHANNELS_LIST);
+   addConstant(CEC_USER_CONTROL_CODE_MAX);
+
+   // alert codes
    PyModule_AddIntConstant(m, "CEC_ALERT_SERVICE_DEVICE",
          CEC_ALERT_SERVICE_DEVICE);
    PyModule_AddIntConstant(m, "CEC_ALERT_CONNECTION_LOST",

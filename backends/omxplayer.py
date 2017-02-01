@@ -1,10 +1,34 @@
 from omxplayer import OMXPlayer
 
+import cec
+
 class OMXPlayerBackend:
     def __init__(self, config):
         self._config = config
 
         self._player = None
+        
+    ### commands given with remote
+    def remote(self, key, time):      
+        # need a player for these commands
+        if self._player == None:
+            return
+        
+        if key == cec.CEC_USER_CONTROL_CODE_PLAY:
+            self._player.play_pause()
+        
+        elif key == cec.CEC_USER_CONTROL_CODE_PAUSE:
+            self._player.play_pause()
+        
+        elif key == cec.CEC_USER_CONTROL_CODE_STOP:
+            self._player.quit()
+        
+        elif key == cec.CEC_USER_CONTROL_CODE_REWIND:
+            self._player.set_position(self._player.position() - (time/10.0)*(time/10.0))
+        
+        elif key == cec.CEC_USER_CONTROL_CODE_FAST_FORWARD:
+            self._player.set_position(self._player.position() + (time/10.0)*(time/10.0))
+            
 
     ### commands
     def reset(self):
@@ -12,13 +36,7 @@ class OMXPlayerBackend:
         if self._player == None:
             return
         
-        # send the quit command
         self._player.quit()
-                
-        # delete the player
-        del self._player
-
-        # set the player to empty
         self._player = None
 
     def start(self, target):
@@ -64,16 +82,20 @@ class OMXPlayerBackend:
 
         # check that we dont divide by zero
         if self._player.duration() == 0:
+            self.reset()
+            return 0
+        
+        if not self._player.position():
+            self.reset()
             return 0
 
         # calculate position as percentage
         percentage = 100 * (float(self._player.position()) / self._player.duration())
-        print(percentage)       
         return percentage		
 
 
     def paused(self):
         if self._player == None:
-            return False
+            return True
         return not self._player.is_playing()
 
