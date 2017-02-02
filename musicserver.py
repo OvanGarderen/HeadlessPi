@@ -52,12 +52,12 @@ class MusicServer(Server):
 
     # play song
     def play(self):
-        self._client.pause(0)
+        self._client.play()
         return "OK"
 
     # pause song
     def pause(self):
-        self._client.pause(1)
+        self._client.pause()
         return "OK"
 
     # pause song
@@ -80,7 +80,17 @@ class MusicServer(Server):
 
     # return playlist
     def playlist(self):
-        return self._client.playlistid()
+        return {"queue": self._client.playlistid(),
+                "current": self._client.currentsong()}
+
+    def playlist_remove(self, id):
+        # remove song with id
+        if id != None:
+            self._client.deleteid(id)
+            return "OK"
+
+        # invalid id
+        abort(500)
 
     # list video directory
     def list(self):
@@ -136,6 +146,8 @@ class MusicServer(Server):
                 return self.next()
             elif command == 'clear':
                 return self.clear()
+            elif command == 'playlist-remove':
+                return self.playlist_remove(vals.get('id', None))
 
         abort(404)
 
