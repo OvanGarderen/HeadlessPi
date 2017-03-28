@@ -7,12 +7,12 @@ from plugin import Server
 
 try:
     from backends.mpv import MPVBackend
-except OSError as e:
+except Exception as e:
     print("Could not load MPV backend: " + str(e))
 
 try:
     from backends.omxplayer import OMXPlayerBackend
-except OSError as e:
+except Exception as e:
     print("Could not load OMXPlayer backend: " + str(e))
     
 class VideoServer(Server):

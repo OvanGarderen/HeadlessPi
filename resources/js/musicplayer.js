@@ -51,8 +51,6 @@ var music_add = function (target) {
     }).done(refresh)
 }
 
-var current_id = 0
-
 // refresh the playlist
 var refresh_playlist = function() {
     $.ajax({
@@ -65,11 +63,18 @@ var refresh_playlist = function() {
 
         // renew the playlist
         playlist.empty()
+        console.log(data)
+        // get the current playing sond
+        var current_id = data.current.id
 
-        if (data.length == 0)
+        // get the queue
+        var queue= data.queue
+
+        if (queue.length == 0)
             playlist.append("Playlist empty")
         else 
-            data.forEach(function (song, index) {
+            queue.forEach(function (song, index) {
+                console.log(song)
                 // make element
                 var li = $('<li>').append(song.artist + " - " + song.title)
                 
@@ -79,6 +84,18 @@ var refresh_playlist = function() {
                 // set the id of the song
                 li.prop("data-id", song.id)
 
+                $('<i class="button fa fa-remove" style="float: right">')
+                    .click(function () {
+                        $.ajax({
+                            url : "./playlist-remove",
+                            method : "POST",
+                            data : {id : song.id}
+                        }).done(function () {
+                            refresh()
+                        })
+                    })
+                    .appendTo(li)
+                
                 // add a line to the playlist
                 playlist.append(li)
             })
@@ -92,8 +109,8 @@ var refresh_status = function() {
         method : "GET"
     }).done(function(data){   
         var playlist = $('#playlist');
-
-        if (data.play == "play")
+        console.log(data)
+        if (data.state == "play")
             playlist.addClass('playing')
         else
             playlist.removeClass('playing')
