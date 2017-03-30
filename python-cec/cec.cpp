@@ -549,36 +549,34 @@ static PyMethodDef CecMethods[] = {
 libcec_configuration * CEC_config;
 ICECCallbacks * CEC_callbacks; 
 
-int log_cb(void * self, const cec_log_message message) {
+void log_cb(void * self, const cec_log_message *message ) {
    debug("got log callback\n");
    PyGILState_STATE gstate;
    gstate = PyGILState_Ensure();
-   int level = message.level;
-   long int time = message.time;
+   int level = message->level;
+   long int time = message->time;
    PyObject * args = Py_BuildValue("(iils)", EVENT_LOG, 
          level,
          time,
-         message.message);
+         message->message);
    trigger_event(EVENT_LOG, args);
    Py_DECREF(args);
    PyGILState_Release(gstate);
-   return 1;
 }
 
-int keypress_cb(void * self, const cec_keypress key) {
+void keypress_cb(void * self, const cec_keypress *key) {
    debug("got keypress callback\n");
    PyGILState_STATE gstate;
    gstate = PyGILState_Ensure();
    PyObject * args = Py_BuildValue("(iBI)", EVENT_KEYPRESS,
-         key.keycode,
-         key.duration);
+         key->keycode,
+         key->duration);
    trigger_event(EVENT_KEYPRESS, args);
    Py_DECREF(args);
    PyGILState_Release(gstate);
-   return 1;
 }
 
-int command_cb(void * self, const cec_command command) {
+void command_cb(void * self, const cec_command *command) {
    debug("got command callback\n");
    PyGILState_STATE gstate;
    gstate = PyGILState_Ensure();
@@ -589,10 +587,9 @@ int command_cb(void * self, const cec_command command) {
    //trigger_event(EVENT_COMMAND, args);
    Py_DECREF(args);
    PyGILState_Release(gstate);
-   return 1;
 }
 
-int config_cb(void * self, const libcec_configuration) {
+void config_cb(void * self, const libcec_configuration *conf) {
    debug("got config callback\n");
    PyGILState_STATE gstate;
    gstate = PyGILState_Ensure();
@@ -607,10 +604,9 @@ int config_cb(void * self, const libcec_configuration) {
    //trigger_event(EVENT_CONFIG_CHANGE, args);
    Py_DECREF(args);
    PyGILState_Release(gstate);
-   return 1;
 }
 
-int alert_cb(void * self, const libcec_alert alert, const libcec_parameter p) {
+void alert_cb(void * self, const libcec_alert alert, const libcec_parameter p) {
    debug("got alert callback\n");
    PyGILState_STATE gstate;
    gstate = PyGILState_Ensure();
@@ -624,7 +620,6 @@ int alert_cb(void * self, const libcec_alert alert, const libcec_parameter p) {
    trigger_event(EVENT_ALERT, args);
    Py_DECREF(args);
    PyGILState_Release(gstate);
-   return 1;
 }
 
 int menu_cb(void * self, const cec_menu_state menu) {
@@ -727,7 +722,7 @@ PyMODINIT_FUNC initcec(void) {
 
    CEC_callbacks->logMessage = log_cb;
    CEC_callbacks->keyPress = keypress_cb;
-   CEC_callbacks->command = command_cb;
+//   CEC_callbacks->command = command_cb;
    CEC_callbacks->configurationChanged = config_cb;
    CEC_callbacks->alert = alert_cb;
    CEC_callbacks->menuStateChanged = menu_cb;
