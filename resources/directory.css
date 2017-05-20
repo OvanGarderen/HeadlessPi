@@ -1,11 +1,6 @@
 .children {
-    margin-left: 1em;
-    padding: .5em;
-
-    border: 1px solid grey;
-    border-top: none;
-
-    background-color: #223;
+    margin-left: 2em;
+    padding-bottom: .2em;
 }
 
 .directory-list .entry {

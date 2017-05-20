@@ -97,8 +97,11 @@ import cec
 if __name__ == "__main__":
     from sys import argv
 
-    cec.add_callback(remote, cec.EVENT_KEYPRESS)
-    cec.init()
+    try:
+        cec.add_callback(remote, cec.EVENT_KEYPRESS)
+        cec.init()
+    except:
+        print("LibCEC not available")
 
     # should we run as a debug server?
     debug = "--debug" in argv

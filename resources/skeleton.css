@@ -3,12 +3,19 @@
     font-family: 'Arima Madurai', cursive;
 }
 
-body, h1, h2, h3, h4, h5, h6 {
+h1, h2, h3, h4, h5, h6 {
     margin: 0;
     margin-bottom: 1rem;
 }
 
+html {
+    min-height: 100%;
+}
+
 body {
+    margin: 0;
+    min-height: 100vh;
+
     color: #f0f0f0;
     background-color: #03030f;
 }
@@ -26,11 +33,12 @@ a {
 
     vertical-align: text-bottom;
     
-    color: #41a887;
+    color: #30A070;
+    text-decoration: none;
 }
 
 a:hover {
-    background-color: #888;
+    background-color: rgba(200, 200, 200, .1);
 }
 
 .content h2 {
@@ -38,43 +46,51 @@ a:hover {
 }
 
 /* general boxes */
-body {
+.page {
     display: flex;
     flex-direction: row;
+    height: 45em;
 }
 
-section.nav {
-    flex-grow: 0;
-    flex-shrink: 0;
-    flex-basis: 8%;
-    padding: 1.5em;
-
-    min-height: 30em;
+div.nav {
+    padding: 0em;
+    margin-bottom: 0;
+    background: linear-gradient(black, #3f3f3f);
 }
 
-section.nav ul {
-    padding-left: 0;
+div.nav a {
+    display: inline-block;
+
+    font-weight: bolder;
+    font-size: 18px;
 }
 
-section.nav a {
-    display: block;
+div.nav h2 {
+    padding-left: .5em;
+    line-height: 1em;
+    margin: 0;
+    margin-top: .5em;
 }
 
-section.content {
+div.nav #mod-prefix {
+    margin-left: .5em;
+}
+
+div.content {
     padding-top: 1em;
     margin-left: 2em;
     margin-right: 2em;
     flex-grow: 1;
 }
 
-section.right-menu {
+div.right-menu {
     flex-grow: 0;
     flex-basis: 30%;
 }
 
 .box {
-    margin-bottom: 1rem;
-    padding: 1rem;
+    margin-bottom: .8rem;
+    padding: .3rem;
     border: 1px solid grey;
 
     background-color: #223;
@@ -91,9 +107,22 @@ section.right-menu {
 }
 
 .scrollable {
-    max-height: 50em;
+    max-height: 100%;
     overflow-y: auto;
 }
+
+.scrollable::-webkit-scrollbar-track {
+    margin: 1px;
+}
+
+.scrollable::-webkit-scrollbar {
+    width: 8px;
+}
+
+.scrollable::-webkit-scrollbar-thumb {
+    background-color: #CFCFCF;
+}
+
 
 /* links */
 i.fa {

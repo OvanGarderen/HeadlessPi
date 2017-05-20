@@ -9,7 +9,6 @@ Music Player Daemon
 {% endblock %}
 {% block right_menu %}
 <div class="playlist box box-right box-top">
-  <h3>Playlist</h3>
   <div class="scrollable">
     <ul id="playlist" class="song-list">
       Playlist empty
@@ -20,19 +19,18 @@ Music Player Daemon
 {% block content %}
 <h2>Music player Daemon</h2>
 
-<div class="box action-buttons">
-  <a id="play-button"><i class="fa fa-play"></i>Play</a>
-  <a id="clear-button"><i class="fa fa-list"></i>Clear</a>
-  <a id="prev-button"><i class="fa fa-fast-backward"></i>Prev</a>
-  <a id="next-button"><i class="fa fa-fast-forward"></i>Next</a>
-  <hr>
-  <div class="add-song">
-    <input id="music-target" name="song"/>
-    <a id="add-button"><i class="fa fa-play"></i>Add song</a>
-  </div>
-</div>
+<div id="mod-content">
 
-<div id="directory-container" class="directory-list">
+  <div id="action-buttons" class="box">
+    <a id="play-button"><i class="fa fa-play"></i>Play</a>
+    <a id="clear-button"><i class="fa fa-list"></i>Clear</a>
+    <a id="prev-button"><i class="fa fa-fast-backward"></i>Prev</a>
+    <a id="next-button"><i class="fa fa-fast-forward"></i>Next</a>
+  </div>
+
+  <div id="directory-container" class="directory-list scrollable">
+  </div>
+
 </div>
 
 {% endblock %}

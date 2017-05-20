@@ -1,4 +1,25 @@
+/* side menu */
+.playlist {
+    padding-top: .5em;
+    height: 100%;
+}
+
 /* song list */
+#mod-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+#directory-container {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    min-height: 0px;
+
+    border-top: solid 2px gray; 
+    border-bottom: solid 2px gray; 
+}
+
 .song-list {
     padding: 0;
     list-style-type: none;
